@@ -1,0 +1,65 @@
+/* Ad Network slots. Each slot reserves its ad's size so the page doesn't jump when it loads. */
+.adn-slot {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin: 1.5em auto;
+	max-width: 100%;
+	clear: both;
+}
+
+.adn-slot--header,
+.adn-slot--footer {
+	margin: 0 auto;
+	padding: 8px 0;
+}
+
+.adn-slot[data-adn-label]::before {
+	content: attr(data-adn-label);
+	display: block;
+	font-size: 10px;
+	line-height: 14px;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+	opacity: 0.6;
+}
+
+.adn-slot__ad {
+	position: relative;
+	width: var(--adn-dw);
+	height: var(--adn-dh);
+	max-width: 100%;
+	overflow: hidden;
+}
+
+.adn-slot__ad > a.adn-image,
+.adn-slot__ad > a.adn-image img {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+.adn-slot__ad > a.adn-image img {
+	object-fit: contain;
+}
+
+.adn-slot--empty,
+.adn-slot--no-desktop {
+	display: none;
+}
+
+@media (max-width: 767.98px) {
+	.adn-slot__ad {
+		width: var(--adn-mw);
+		height: var(--adn-mh);
+	}
+
+	.adn-slot--no-desktop {
+		display: flex;
+	}
+
+	.adn-slot--no-mobile,
+	.adn-slot--empty {
+		display: none;
+	}
+}

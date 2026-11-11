@@ -1,0 +1,56 @@
+{
+	"name": "arbe/ad-network",
+	"description": "Run your own ad network on WordPress: placements, rotation, tracking and stats.",
+	"type": "wordpress-plugin",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"php": ">=8.1",
+		"bignall/wp-foundation": "^0.1.3"
+	},
+	"require-dev": {
+		"brain/monkey": "^2.6",
+		"brianhenryie/strauss": "^0.19",
+		"phpunit/phpunit": "^9.6"
+	},
+	"autoload": {
+		"psr-4": {
+			"AdNetwork\\": "src/"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"AdNetwork\\Tests\\": "tests/"
+		}
+	},
+	"extra": {
+		"strauss": {
+			"target_directory": "vendor-prefixed",
+			"namespace_prefix": "AdNetwork\\Vendor\\",
+			"classmap_prefix": "AdNetwork_Vendor_",
+			"packages": [
+				"bignall/wp-foundation"
+			],
+			"delete_vendor_packages": true
+		}
+	},
+	"scripts": {
+		"prefix-namespaces": [
+			"strauss",
+			"@composer dump-autoload"
+		],
+		"post-install-cmd": [
+			"@prefix-namespaces"
+		],
+		"post-update-cmd": [
+			"@prefix-namespaces"
+		],
+		"test": "phpunit"
+	},
+	"config": {
+		"platform": {
+			"php": "8.1.0"
+		},
+		"platform-check": false,
+		"sort-packages": true
+	}
+}
