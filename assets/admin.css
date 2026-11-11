@@ -1,0 +1,39 @@
+.adn-image-preview img {
+	display: block;
+	max-width: 100%;
+	max-height: 300px;
+	margin-bottom: 8px;
+	border: 1px solid #dcdcde;
+}
+
+.adn-warning {
+	color: #996800;
+	font-weight: 600;
+}
+
+.adn-warning:empty {
+	display: none;
+}
+
+.adn-ad-form .CodeMirror {
+	height: 260px;
+	border: 1px solid #dcdcde;
+}
+
+.adn-stats th,
+.adn-stats td {
+	padding: 4px 8px;
+}
+
+.adn-placements {
+	max-width: 1100px;
+	margin-bottom: 1em;
+}
+
+.adn-placements td {
+	vertical-align: top;
+}
+
+.adn-help code {
+	user-select: all;
+}

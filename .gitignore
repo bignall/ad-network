@@ -1,0 +1,7 @@
+*.zip
+.DS_Store
+/vendor/
+/vendor-prefixed/
+/build/
+/dist/
+.phpunit.result.cache
