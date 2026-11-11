@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin settings, stored in one option.
+ * Plugin settings, stored in one option through WP Foundation's Settings.
  *
  * @package AdNetwork
  */
@@ -9,45 +9,54 @@ declare(strict_types=1);
 
 namespace AdNetwork;
 
+use AdNetwork\Vendor\Bignall\WPFoundation\Settings\Settings as Store;
+
 final class Settings {
 
 	public const OPTION = 'adn_settings';
 	public const GROUP  = 'adn-settings';
 
-	/** @var array<string, mixed>|null Request cache. */
-	private static ?array $cache = null;
+	/** Raw events are kept at least this long; older days live on in the daily totals. */
+	public const MIN_RETENTION_DAYS = 7;
+
+	private static ?Store $store = null;
+
+	/** The settings object, shared with WP Foundation (which adds, registers and removes it). */
+	public static function store(): Store {
+		if ( null === self::$store ) {
+			self::$store = new Store( self::OPTION, self::defaults(), array( self::class, 'sanitize' ), self::GROUP );
+		}
+		return self::$store;
+	}
 
 	/** @return array<string, mixed> */
 	public static function defaults(): array {
 		return array(
-			'sizes'         => Sizes::defaultEnabled(),
-			'placements'    => array(),
-			'allow_scripts' => 0,
-			'label'         => 'Advertisement',
-			'new_tab'       => 1,
-			'content_types' => array( 'post' ),
-			'track'         => 1,
-			'ignore_bots'   => 1,
-			'track_admins'  => 0,
-			'remove_data'   => 0,
+			'sizes'          => Sizes::defaultEnabled(),
+			'placements'     => array(),
+			'allow_scripts'  => 0,
+			'label'          => 'Advertisement',
+			'new_tab'        => 1,
+			'content_types'  => array( 'post' ),
+			'track'          => 1,
+			'ignore_bots'    => 1,
+			'track_admins'   => 0,
+			'retention_days' => 90,
+			'remove_data'    => 0,
 		);
 	}
 
 	/** @return array<string, mixed> */
 	public static function all(): array {
-		if ( null === self::$cache ) {
-			$saved       = get_option( self::OPTION, array() );
-			self::$cache = array_merge( self::defaults(), is_array( $saved ) ? $saved : array() );
-		}
-		return self::$cache;
+		return self::store()->all();
 	}
 
 	public static function get( string $key ): mixed {
-		return self::all()[ $key ] ?? null;
+		return self::store()->get( $key );
 	}
 
 	public static function flush(): void {
-		self::$cache = null;
+		self::store()->flush();
 	}
 
 	/**
@@ -59,30 +68,19 @@ final class Settings {
 	}
 
 	public static function init(): void {
-		add_action( 'admin_init', array( self::class, 'register' ) );
-		add_action( 'update_option_' . self::OPTION, array( self::class, 'flush' ) );
+		// Registration and cache flushing are WP Foundation's; which ads are servable is ours.
 		add_action( 'update_option_' . self::OPTION, array( Ads::class, 'flushCache' ) );
 	}
 
-	public static function register(): void {
-		register_setting(
-			self::GROUP,
-			self::OPTION,
-			array(
-				'type'              => 'array',
-				'sanitize_callback' => array( self::class, 'sanitize' ),
-				'default'           => self::defaults(),
-			)
-		);
-	}
-
 	/**
-	 * @param mixed $input Submitted settings.
+	 * Clean the submitted settings form.
+	 *
+	 * @param array<string, mixed> $input   Submitted settings.
+	 * @param Store                $current Current settings.
 	 * @return array<string, mixed>
 	 */
-	public static function sanitize( $input ): array {
-		$input = is_array( $input ) ? $input : array();
-		$out   = self::defaults();
+	public static function sanitize( array $input, Store $current ): array {
+		$out = self::defaults();
 
 		$out['sizes'] = array_values( array_intersect( array_map( 'strval', (array) ( $input['sizes'] ?? array() ) ), array_keys( Sizes::all() ) ) );
 
@@ -103,6 +101,8 @@ final class Settings {
 		$out['content_types'] = array_values( array_filter( array_map( 'sanitize_key', (array) ( $input['content_types'] ?? array() ) ), 'post_type_exists' ) );
 		$out['label']         = sanitize_text_field( (string) ( $input['label'] ?? '' ) );
 
+		$out['retention_days'] = max( self::MIN_RETENTION_DAYS, min( 3650, (int) ( $input['retention_days'] ?? self::defaults()['retention_days'] ) ) );
+
 		foreach ( array( 'new_tab', 'track', 'ignore_bots', 'track_admins', 'remove_data' ) as $flag ) {
 			$out[ $flag ] = empty( $input[ $flag ] ) ? 0 : 1;
 		}
@@ -110,7 +110,7 @@ final class Settings {
 		// Only someone who could paste scripts themselves may let ads carry them.
 		$out['allow_scripts'] = current_user_can( 'unfiltered_html' )
 			? ( empty( $input['allow_scripts'] ) ? 0 : 1 )
-			: (int) self::get( 'allow_scripts' );
+			: (int) $current->get( 'allow_scripts' );
 
 		return $out;
 	}

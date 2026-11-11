@@ -37,3 +37,198 @@
 .adn-help code {
 	user-select: all;
 }
+
+/* Stats page. */
+.adn-stats-page {
+	--adn-series-1: #2a78d6;
+	--adn-series-2: #eb6834;
+	--adn-ink: #1d2327;
+	--adn-ink-2: #50575e;
+	--adn-muted: #898781;
+	--adn-grid: #e1e0d9;
+	--adn-axis: #c3c2b7;
+	--adn-surface: #fff;
+	max-width: 1200px;
+}
+
+.adn-filters {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	align-items: center;
+	margin: 12px 0 4px;
+}
+
+.adn-filters .adn-export {
+	margin-left: auto;
+}
+
+.adn-range-note {
+	color: var(--adn-ink-2);
+	margin: 0 0 16px;
+}
+
+.adn-tiles {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+	gap: 12px;
+	margin-bottom: 16px;
+}
+
+.adn-tile,
+.adn-card {
+	background: var(--adn-surface);
+	border: 1px solid #dcdcde;
+	border-radius: 8px;
+	padding: 14px 16px;
+}
+
+.adn-tile__label {
+	color: var(--adn-ink-2);
+	font-size: 13px;
+}
+
+.adn-tile__value {
+	color: var(--adn-ink);
+	font-size: 28px;
+	font-weight: 600;
+	line-height: 1.3;
+}
+
+.adn-tile__note {
+	color: var(--adn-muted);
+	font-size: 12px;
+}
+
+.adn-card {
+	margin-bottom: 16px;
+}
+
+.adn-card h2 {
+	font-size: 14px;
+	margin: 0 0 8px;
+}
+
+.adn-columns {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+	gap: 16px;
+}
+
+.adn-chart {
+	position: relative;
+	height: 260px;
+	margin-bottom: 20px;
+}
+
+.adn-chart--short {
+	height: 180px;
+}
+
+.adn-chart svg {
+	display: block;
+	overflow: visible;
+}
+
+.adn-grid {
+	stroke: var(--adn-grid);
+	stroke-width: 1;
+}
+
+.adn-axis {
+	stroke: var(--adn-axis);
+	stroke-width: 1;
+}
+
+.adn-tick {
+	fill: var(--adn-muted);
+	font-size: 11px;
+	font-variant-numeric: tabular-nums;
+}
+
+.adn-direct-label {
+	fill: var(--adn-ink-2);
+	font-size: 12px;
+}
+
+.adn-crosshair {
+	stroke: var(--adn-axis);
+	stroke-width: 1;
+}
+
+.adn-dot {
+	stroke: var(--adn-surface);
+	stroke-width: 2;
+}
+
+.adn-bar:hover .adn-bar__mark,
+.adn-bar:focus .adn-bar__mark {
+	opacity: 0.8;
+}
+
+.adn-bar:focus {
+	outline: none;
+}
+
+.adn-legend {
+	display: flex;
+	gap: 16px;
+	color: var(--adn-ink-2);
+	font-size: 12px;
+	margin-bottom: 6px;
+}
+
+.adn-legend__line {
+	display: inline-block;
+	width: 14px;
+	height: 2px;
+	margin-right: 6px;
+	vertical-align: middle;
+	border-radius: 1px;
+}
+
+.adn-tooltip {
+	position: absolute;
+	z-index: 2;
+	pointer-events: none;
+	background: var(--adn-surface);
+	border: 1px solid rgba(11, 11, 11, 0.1);
+	border-radius: 6px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+	padding: 6px 10px;
+	font-size: 12px;
+	white-space: nowrap;
+}
+
+.adn-tooltip__day {
+	color: var(--adn-muted);
+	margin-bottom: 2px;
+}
+
+.adn-tooltip__row strong {
+	color: var(--adn-ink);
+	font-variant-numeric: tabular-nums;
+}
+
+.adn-tooltip__row span:not(.adn-tooltip__key) {
+	color: var(--adn-ink-2);
+}
+
+.adn-tooltip__key {
+	display: inline-block;
+	width: 10px;
+	height: 2px;
+	margin-right: 6px;
+	vertical-align: middle;
+}
+
+.adn-table-view summary {
+	cursor: pointer;
+	color: #2271b1;
+}
+
+.adn-stats-page th.num,
+.adn-stats-page td.num {
+	text-align: right;
+	font-variant-numeric: tabular-nums;
+}

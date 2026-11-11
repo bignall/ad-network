@@ -9,8 +9,8 @@ served in weighted random rotation, with served / viewed / clicked tracking. Bui
 
 | Phase | Scope | Status |
 | --- | --- | --- |
-| 1 | Sizes, placements, ads (image/HTML), cache-safe JS rotation, event logging | **This version** |
-| 2 | Daily rollups, pruning, stats pages, CSV export | Planned |
+| 1 | Sizes, placements, ads (image/HTML), cache-safe JS rotation, event logging | Done (0.1.0) |
+| 2 | Daily rollups, pruning, stats pages, CSV export | **Done (0.2.0)** |
 | 3 | Popup and sticky placements, frequency caps, scheduling, targeting, per-post opt-out | Planned |
 | 4 | Member accounts, credit ledger, earning credits for views/clicks, spending credits on ads, review queue | Planned |
 | 5 | Buying credits and placements | Planned |
@@ -40,6 +40,22 @@ served in weighted random rotation, with served / viewed / clicked tracking. Bui
   them *and* the person saving the ad has `unfiltered_html`. Such ads are flagged as third-party
   and will never earn credits, because networks like AdSense ban rewarded views and clicks.
 
+## Stats
+
+**Ads → Stats** shows served, viewed, clicks and CTR for a date range (last 7/30/90 days,
+this month or custom), optionally for one ad or one placement. It has a daily chart, tables by
+ad, by placement and by page, and a CSV export of the daily rows. Each ad in the list has a
+**Stats** link, and the ad edit screen shows its last 7 and 30 days.
+
+- An hourly cron job rolls raw events up into the `adn_daily` table, with days in the site's
+  timezone. Re-running it never double-counts. Stats screens also bring today up to date when
+  opened, at most every 5 minutes.
+- Raw events are deleted after **Keep detailed events for** (90 days by default, minimum 7).
+  Daily totals are kept forever. Top pages come from raw events, so they only cover that period.
+- A click also counts as a view, so clicks can never outnumber views.
+- With Affiliate Link Cloaker 0.4.0+, **Link clicks** shows the redirects the cloaker logged
+  for each ad's link (sub-ID `adn-{ID}`). That includes clicks the page itself can't see.
+
 ## Placing ads by hand
 
 ```
@@ -60,6 +76,7 @@ There's also an **Ad Slot** widget. Slots added to the page after load can be fi
 
 ```bash
 composer install     # also prefixes WP Foundation into vendor-prefixed/ with Strauss
+                     # (requires WP Foundation's Settings, from its dreamy-planck branch until 0.2.0 is released)
 composer test
 bin/build-zip.sh     # installable zip in dist/
 ```

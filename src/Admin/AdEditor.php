@@ -14,7 +14,8 @@ use AdNetwork\App;
 use AdNetwork\Integrations\LinkCloaker;
 use AdNetwork\Settings;
 use AdNetwork\Sizes;
-use AdNetwork\Tracking\Events;
+use AdNetwork\Stats\Report;
+use AdNetwork\Tracking\Rollup;
 
 final class AdEditor {
 
@@ -189,19 +190,29 @@ final class AdEditor {
 			echo '<p>' . esc_html__( 'Stats appear once the ad is running.', 'ad-network' ) . '</p>';
 			return;
 		}
-		$all  = Events::totals( array( $post->ID ) )[ $post->ID ];
-		$week = Events::totals( array( $post->ID ), 7 )[ $post->ID ];
+		Rollup::refresh();
+		$filter = array( 'ad' => $post->ID );
+		$week   = Report::lastDays( 7, $filter )->totals();
+		$month  = Report::lastDays( 30, $filter )->totals();
+		$rows   = array(
+			'serves' => __( 'Served', 'ad-network' ),
+			'views'  => __( 'Viewed', 'ad-network' ),
+			'clicks' => __( 'Clicks', 'ad-network' ),
+		);
 		?>
 		<table class="widefat striped adn-stats">
-			<thead><tr><th></th><th><?php esc_html_e( '7 days', 'ad-network' ); ?></th><th><?php esc_html_e( 'All time', 'ad-network' ); ?></th></tr></thead>
+			<thead><tr><th></th><th><?php esc_html_e( '7 days', 'ad-network' ); ?></th><th><?php esc_html_e( '30 days', 'ad-network' ); ?></th></tr></thead>
 			<tbody>
-				<tr><th><?php esc_html_e( 'Served', 'ad-network' ); ?></th><td><?php echo esc_html( number_format_i18n( $week['serve'] ) ); ?></td><td><?php echo esc_html( number_format_i18n( $all['serve'] ) ); ?></td></tr>
-				<tr><th><?php esc_html_e( 'Viewed', 'ad-network' ); ?></th><td><?php echo esc_html( number_format_i18n( $week['view'] ) ); ?></td><td><?php echo esc_html( number_format_i18n( $all['view'] ) ); ?></td></tr>
-				<tr><th><?php esc_html_e( 'Clicks', 'ad-network' ); ?></th><td><?php echo esc_html( number_format_i18n( $week['click'] ) ); ?></td><td><?php echo esc_html( number_format_i18n( $all['click'] ) ); ?></td></tr>
-				<tr><th><?php esc_html_e( 'CTR', 'ad-network' ); ?></th><td><?php echo esc_html( AdList::ctr( $week ) ); ?></td><td><?php echo esc_html( AdList::ctr( $all ) ); ?></td></tr>
+				<?php foreach ( $rows as $key => $label ) : ?>
+					<tr><th><?php echo esc_html( $label ); ?></th><td><?php echo esc_html( number_format_i18n( $week[ $key ] ) ); ?></td><td><?php echo esc_html( number_format_i18n( $month[ $key ] ) ); ?></td></tr>
+				<?php endforeach; ?>
+				<tr><th><?php esc_html_e( 'CTR', 'ad-network' ); ?></th><td><?php echo esc_html( Report::ctr( $week ) ); ?></td><td><?php echo esc_html( Report::ctr( $month ) ); ?></td></tr>
 			</tbody>
 		</table>
 		<p class="description"><?php esc_html_e( 'Viewed: at least half the ad was on screen for a second. CTR is clicks per view.', 'ad-network' ); ?></p>
+		<?php if ( current_user_can( StatsPage::CAPABILITY ) ) : ?>
+			<p><a href="<?php echo esc_url( StatsPage::url( $filter ) ); ?>"><?php esc_html_e( 'Full stats', 'ad-network' ); ?> &rarr;</a></p>
+		<?php endif; ?>
 		<?php
 	}
 

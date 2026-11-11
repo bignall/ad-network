@@ -9,7 +9,9 @@ declare(strict_types=1);
 
 namespace AdNetwork;
 
+use AdNetwork\Tracking\DailyTable;
 use AdNetwork\Tracking\EventsTable;
+use AdNetwork\Tracking\Rollup;
 use AdNetwork\Vendor\Bignall\WPFoundation\Plugin;
 
 final class Bootstrap {
@@ -19,8 +21,9 @@ final class Bootstrap {
 	public static function plugin( string $file ): Plugin {
 		return Plugin::create( $file, self::PREFIX )
 			->requires( php: '8.1', wp: '6.4', extensions: array( 'json' ) )
-			->options( array( Settings::OPTION => Settings::defaults() ), merge: true )
-			->tables( new EventsTable() )
+			->settings( Settings::store() )
+			->tables( new EventsTable(), new DailyTable() )
+			->cron( Rollup::HOOK, 'hourly' )
 			->postTypes( Ads::POST_TYPE )
 			->task( new Tasks\CleanupTask() )
 			->deactivationSurvey()

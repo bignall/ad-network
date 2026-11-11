@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace AdNetwork\Tasks;
 
 use AdNetwork\Ads;
+use AdNetwork\Tracking\Rollup;
 use AdNetwork\Vendor\Bignall\WPFoundation\Plugin;
 use AdNetwork\Vendor\Bignall\WPFoundation\Tasks\AbstractTask;
 
@@ -23,6 +24,7 @@ final class CleanupTask extends AbstractTask {
 
 	public function uninstall( Plugin $plugin ): void {
 		Ads::flushCache();
+		delete_option( Rollup::FROM_OPTION );
 		delete_post_meta_by_key( '_adn_hide_ads' );
 	}
 }

@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name:       Ad Network
- * Description:       Run your own ad network: image and HTML ads in header, footer, in-content and sidebar placements, served in random rotation (page-cache safe) with impression, view and click tracking.
- * Version:           0.1.0
+ * Description:       Run your own ad network: image and HTML ads in header, footer, in-content and sidebar placements, served in random rotation (page-cache safe) with impression, view and click tracking and stats.
+ * Version:           0.2.0
  * Requires at least: 6.4
  * Requires PHP:      8.1
  * Author:            Arbe

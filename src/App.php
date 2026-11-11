@@ -25,6 +25,7 @@ final class App {
 		Ads::init();
 		Settings::init();
 		Rest::init();
+		Tracking\Rollup::init();
 		Serving\Frontend::init();
 		Serving\Shortcode::init();
 		Serving\Widget::init();
@@ -33,6 +34,7 @@ final class App {
 			Admin\AdEditor::init();
 			Admin\AdList::init();
 			Admin\SettingsPage::init( $plugin );
+			Admin\StatsPage::init();
 		}
 	}
 
