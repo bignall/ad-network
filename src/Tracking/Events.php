@@ -51,13 +51,24 @@ final class Events {
 	 * Record a view or click for a served ad. Copies placement and page from the serve row, and
 	 * ignores repeats: each served ad has at most one view and one click.
 	 *
-	 * @return bool Whether a new event was recorded.
+	 * A click also records the view if the browser hadn't reported one yet (the ad was clicked
+	 * within a second, or the view report was lost): an ad that was clicked was seen, and this
+	 * keeps clicks from ever outnumbering views.
+	 *
+	 * @return bool Whether a new event of the requested kind was recorded.
 	 */
 	public static function recordFollowUp( int $serve_id, int $ad_id, int $event ): bool {
-		global $wpdb;
 		if ( ! in_array( $event, array( self::VIEW, self::CLICK ), true ) ) {
 			return false;
 		}
+		if ( self::CLICK === $event ) {
+			self::insertFollowUp( $serve_id, $ad_id, self::VIEW );
+		}
+		return self::insertFollowUp( $serve_id, $ad_id, $event );
+	}
+
+	private static function insertFollowUp( int $serve_id, int $ad_id, int $event ): bool {
+		global $wpdb;
 		$table = self::table();
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery
 		$rows = $wpdb->query(
@@ -89,50 +100,9 @@ final class Events {
 		return $recorded;
 	}
 
-	/**
-	 * Totals per ad and event type.
-	 *
-	 * @param list<int> $ad_ids Ads to count; [] for none.
-	 * @param int       $days   Only the last N days; 0 for all time.
-	 * @return array<int, array{serve: int, view: int, click: int}>
-	 */
-	public static function totals( array $ad_ids, int $days = 0 ): array {
-		global $wpdb;
-		$ad_ids = array_values( array_filter( array_map( 'intval', $ad_ids ) ) );
-		$out    = array();
-		foreach ( $ad_ids as $id ) {
-			$out[ $id ] = array( 'serve' => 0, 'view' => 0, 'click' => 0 );
-		}
-		if ( ! $ad_ids ) {
-			return $out;
-		}
-
-		$table = self::table();
-		$in    = implode( ',', array_fill( 0, count( $ad_ids ), '%d' ) );
-		$args  = $ad_ids;
-		$since = '';
-		if ( $days > 0 ) {
-			$since  = ' AND created_at >= %s';
-			$args[] = gmdate( 'Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS );
-		}
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQLPlaceholders
-		$rows = $wpdb->get_results(
-			$wpdb->prepare( "SELECT ad_id, event, COUNT(*) AS n FROM {$table} WHERE ad_id IN ({$in}){$since} GROUP BY ad_id, event", $args ),
-			ARRAY_A
-		);
-		// phpcs:enable
-		$names = array_flip( self::types() );
-		foreach ( (array) $rows as $row ) {
-			$name = $names[ (int) $row['event'] ] ?? null;
-			if ( $name && isset( $out[ (int) $row['ad_id'] ] ) ) {
-				$out[ (int) $row['ad_id'] ][ $name ] = (int) $row['n'];
-			}
-		}
-		return $out;
-	}
-
 	public static function deleteForAd( int $ad_id ): void {
 		global $wpdb;
 		$wpdb->delete( self::table(), array( 'ad_id' => $ad_id ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		$wpdb->delete( ( new DailyTable() )->tableName(), array( 'ad_id' => $ad_id ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 	}
 }

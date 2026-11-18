@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b6efad9c675811d09eb98ee2b22f4937",
+    "content-hash": "9dea01a8319c501da2a1a3eb172cfb7f",
     "packages": [
         {
             "name": "bignall/wp-foundation",
-            "version": "0.1.3",
+            "version": "dev-claude/dreamy-planck-s7rhkm",
             "source": {
                 "type": "git",
                 "url": "https://github.com/bignall/wp-foundation.git",
-                "reference": "1c9806045f61d35746d25079cbddc208609b4786"
+                "reference": "004d053839cecf0164128729a82cd9a16802f7f4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bignall/wp-foundation/zipball/1c9806045f61d35746d25079cbddc208609b4786",
-                "reference": "1c9806045f61d35746d25079cbddc208609b4786",
+                "url": "https://api.github.com/repos/bignall/wp-foundation/zipball/004d053839cecf0164128729a82cd9a16802f7f4",
+                "reference": "004d053839cecf0164128729a82cd9a16802f7f4",
                 "shasum": ""
             },
             "require": {
@@ -63,9 +63,9 @@
             ],
             "support": {
                 "issues": "https://github.com/bignall/wp-foundation/issues",
-                "source": "https://github.com/bignall/wp-foundation/tree/0.1.3"
+                "source": "https://github.com/bignall/wp-foundation/tree/claude/dreamy-planck-s7rhkm"
             },
-            "time": "2026-11-10T22:53:51+00:00"
+            "time": "2026-11-11T16:05:42+00:00"
         }
     ],
     "packages-dev": [
@@ -5496,9 +5496,18 @@
             "time": "2025-10-29T15:56:20+00:00"
         }
     ],
-    "aliases": [],
+    "aliases": [
+        {
+            "package": "bignall/wp-foundation",
+            "version": "dev-claude/dreamy-planck-s7rhkm",
+            "alias": "0.2.0",
+            "alias_normalized": "0.2.0.0"
+        }
+    ],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": {
+        "bignall/wp-foundation": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

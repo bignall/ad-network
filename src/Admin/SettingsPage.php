@@ -66,6 +66,7 @@ final class SettingsPage {
 		?>
 		<div class="wrap adn-settings">
 			<h1><?php esc_html_e( 'Ad Network Settings', 'ad-network' ); ?></h1>
+			<?php settings_errors(); ?>
 			<form method="post" action="options.php">
 				<?php settings_fields( Settings::GROUP ); ?>
 
@@ -180,8 +181,23 @@ final class SettingsPage {
 							<?php $flag( 'ignore_bots', __( 'Ignore search engines and other bots', 'ad-network' ) ); ?>
 							<?php $flag( 'track_admins', __( 'Count editors and administrators too', 'ad-network' ) ); ?>
 							<p class="description"><?php esc_html_e( 'IP addresses are never stored; visitors are told apart by a salted hash that changes every day.', 'ad-network' ); ?></p>
+							<p>
+								<label for="adn-retention"><?php esc_html_e( 'Keep detailed events for', 'ad-network' ); ?></label>
+								<input type="number" id="adn-retention" class="small-text" min="<?php echo esc_attr( (string) Settings::MIN_RETENTION_DAYS ); ?>" max="3650" name="<?php echo esc_attr( $name ); ?>[retention_days]" value="<?php echo esc_attr( (string) $s['retention_days'] ); ?>">
+								<?php esc_html_e( 'days', 'ad-network' ); ?>
+							</p>
+							<p class="description"><?php esc_html_e( 'Daily totals are kept forever. Detailed events (which page, which visitor) are deleted after this, which keeps the database small. Top pages in Stats only cover this period.', 'ad-network' ); ?></p>
 						</td>
 					</tr>
+					<?php if ( function_exists( 'todo_hub_add' ) ) : ?>
+						<tr>
+							<th scope="row"><?php esc_html_e( 'To-do list', 'ad-network' ); ?></th>
+							<td>
+								<?php $flag( 'todo_tasks', __( 'Add tasks to To-do Hub when ads need attention', 'ad-network' ) ); ?>
+								<p class="description"><?php esc_html_e( 'A task for each published ad that won’t show or whose offer no longer pays, and one for placements with no ad to fill them. They’re marked done when fixed. Checked when ads or settings are saved and once a day.', 'ad-network' ); ?></p>
+							</td>
+						</tr>
+					<?php endif; ?>
 					<tr>
 						<th scope="row"><?php esc_html_e( 'Uninstall', 'ad-network' ); ?></th>
 						<td><?php $flag( 'remove_data', __( 'Delete all ads, stats and settings when the plugin is deleted', 'ad-network' ) ); ?></td>

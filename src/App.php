@@ -25,14 +25,17 @@ final class App {
 		Ads::init();
 		Settings::init();
 		Rest::init();
+		Tracking\Rollup::init();
 		Serving\Frontend::init();
 		Serving\Shortcode::init();
 		Serving\Widget::init();
+		Integrations\TodoHub::init();
 
 		if ( is_admin() ) {
 			Admin\AdEditor::init();
 			Admin\AdList::init();
 			Admin\SettingsPage::init( $plugin );
+			Admin\StatsPage::init();
 		}
 	}
 

@@ -12,17 +12,22 @@ namespace AdNetwork\Admin;
 use AdNetwork\Ads;
 use AdNetwork\Integrations\LinkCloaker;
 use AdNetwork\Sizes;
-use AdNetwork\Tracking\Events;
+use AdNetwork\Stats\Report;
+use AdNetwork\Tracking\Rollup;
 
 final class AdList {
 
-	/** @var array<int, array{serve: int, view: int, click: int}>|null */
+	/** The list's stats columns cover this many days. */
+	public const DAYS = 30;
+
+	/** @var array<int, array{serves: int, views: int, clicks: int}>|null */
 	private static ?array $totals = null;
 
 	public static function init(): void {
 		add_filter( 'manage_' . Ads::POST_TYPE . '_posts_columns', array( self::class, 'columns' ) );
 		add_action( 'manage_' . Ads::POST_TYPE . '_posts_custom_column', array( self::class, 'column' ), 10, 2 );
 		add_filter( 'display_post_states', array( self::class, 'states' ), 10, 2 );
+		add_filter( 'post_row_actions', array( self::class, 'rowActions' ), 10, 2 );
 	}
 
 	/**
@@ -41,7 +46,9 @@ final class AdList {
 				$out['adn_type']   = __( 'Type', 'ad-network' );
 				$out['adn_link']   = __( 'Link', 'ad-network' );
 				$out['adn_weight'] = __( 'Weight', 'ad-network' );
-				$out['adn_serve']  = __( 'Served', 'ad-network' );
+				/* translators: %d: number of days */
+				$days              = sprintf( __( '%d days', 'ad-network' ), self::DAYS );
+				$out['adn_serve']  = __( 'Served', 'ad-network' ) . '<br><span class="description">' . esc_html( $days ) . '</span>';
 				$out['adn_view']   = __( 'Viewed', 'ad-network' );
 				$out['adn_click']  = __( 'Clicks', 'ad-network' );
 				$out['adn_ctr']    = __( 'CTR', 'ad-network' );
@@ -79,10 +86,10 @@ final class AdList {
 			case 'adn_view':
 			case 'adn_click':
 				$t = self::totalsFor( $ad_id );
-				echo esc_html( number_format_i18n( $t[ substr( $column, 4 ) ] ) );
+				echo esc_html( number_format_i18n( $t[ substr( $column, 4 ) . 's' ] ) );
 				break;
 			case 'adn_ctr':
-				echo esc_html( self::ctr( self::totalsFor( $ad_id ) ) );
+				echo esc_html( Report::ctr( self::totalsFor( $ad_id ) ) );
 				break;
 		}
 	}
@@ -103,21 +110,25 @@ final class AdList {
 		return $states;
 	}
 
-	/** @param array{serve: int, view: int, click: int} $t */
-	public static function ctr( array $t ): string {
-		if ( $t['view'] <= 0 ) {
-			return '—';
+	/**
+	 * @param array<string, string> $actions
+	 * @return array<string, string>
+	 */
+	public static function rowActions( array $actions, \WP_Post $post ): array {
+		if ( Ads::POST_TYPE === $post->post_type && 'auto-draft' !== $post->post_status && current_user_can( StatsPage::CAPABILITY ) ) {
+			$actions['adn_stats'] = sprintf( '<a href="%s">%s</a>', esc_url( StatsPage::url( array( 'ad' => $post->ID ) ) ), esc_html__( 'Stats', 'ad-network' ) );
 		}
-		return number_format_i18n( 100 * $t['click'] / $t['view'], 2 ) . '%';
+		return $actions;
 	}
 
-	/** @return array{serve: int, view: int, click: int} */
+	/** @return array{serves: int, views: int, clicks: int} */
 	private static function totalsFor( int $ad_id ): array {
 		if ( null === self::$totals ) {
 			global $wp_query;
-			$ids          = $wp_query ? wp_list_pluck( (array) $wp_query->posts, 'ID' ) : array();
-			self::$totals = Events::totals( array_map( 'intval', $ids ) );
+			Rollup::refresh();
+			$ids          = $wp_query ? array_map( 'intval', wp_list_pluck( (array) $wp_query->posts, 'ID' ) ) : array();
+			self::$totals = Report::lastDays( self::DAYS )->forAds( $ids );
 		}
-		return self::$totals[ $ad_id ] ?? Events::totals( array( $ad_id ) )[ $ad_id ];
+		return self::$totals[ $ad_id ] ?? Report::lastDays( self::DAYS )->forAds( array( $ad_id ) )[ $ad_id ];
 	}
 }
