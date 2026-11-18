@@ -1,0 +1,79 @@
+name: Release
+
+# Push a tag like v0.2.1 to build the plugin zip and publish a GitHub release with it attached.
+# The tag must match the "Version:" header in ad-network.php.
+# Release notes come from release-notes/<tag>.md if it exists, otherwise from the commit history.
+# If that file starts with a "# Heading" line, the heading is the release title; otherwise the tag is.
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.1"
+          tools: composer:v2
+          coverage: none
+
+      - name: Check tag matches plugin version
+        id: version
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          VERSION="$(sed -n 's/^ \* Version: *//p' ad-network.php | tr -d '[:space:]')"
+          if [ "v${VERSION}" != "${TAG}" ]; then
+            echo "::error::Tag ${TAG} does not match plugin Version: ${VERSION} in ad-network.php"
+            exit 1
+          fi
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Build zip
+        run: bin/build-zip.sh
+
+      - name: Smoke-check the zip
+        run: |
+          ZIP="dist/ad-network-${{ steps.version.outputs.version }}.zip"
+          unzip -tq "$ZIP"
+          for f in ad-network.php vendor/autoload.php vendor-prefixed/autoload.php src/Bootstrap.php; do
+            unzip -l "$ZIP" "ad-network/$f" > /dev/null || { echo "::error::Missing $f in zip"; exit 1; }
+          done
+          mkdir -p /tmp/check && unzip -q "$ZIP" -d /tmp/check
+          find /tmp/check -name '*.php' -print0 | xargs -0 -n1 php -l > /dev/null
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          ZIP="dist/ad-network-${{ steps.version.outputs.version }}.zip"
+          # Title from the notes file's "# Heading" (else the tag); body is the rest of the file.
+          BODY="${RUNNER_TEMP}/release-notes.md"
+          set +e
+          TITLE="$(bin/release-notes.sh "$TAG" "$BODY")"
+          STATUS=$?
+          set -e
+          case "$STATUS" in
+            0) NOTES=(--notes-file "$BODY") ;;
+            3) TITLE="$TAG"; NOTES=(--generate-notes) ;;
+            *) echo "::error::Could not read release-notes/${TAG}.md"; exit 1 ;;
+          esac
+          echo "Release title: ${TITLE}"
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            # Release already exists (e.g. created by hand): keep its title and notes, (re)attach the zip.
+            gh release upload "$TAG" "$ZIP" --clobber
+          else
+            gh release create "$TAG" "$ZIP" --verify-tag --title "$TITLE" "${NOTES[@]}"
+          fi

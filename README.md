@@ -93,10 +93,12 @@ There's also an **Ad Slot** widget. Slots added to the page after load can be fi
 
 ```bash
 composer install     # also prefixes WP Foundation into vendor-prefixed/ with Strauss
-                     # (requires WP Foundation's Settings, from its dreamy-planck branch until 0.2.0 is released)
 composer test
 bin/build-zip.sh     # installable zip in dist/
 ```
+
+Pushing a tag such as `v0.3.0` that matches the `Version:` header builds the zip and publishes a
+GitHub release with it attached. Notes come from `release-notes/<tag>.md`.
 
 ## Hooks
 
