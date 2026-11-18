@@ -24,6 +24,7 @@ final class Bootstrap {
 			->settings( Settings::store() )
 			->tables( new EventsTable(), new DailyTable() )
 			->cron( Rollup::HOOK, 'hourly' )
+			->cron( Integrations\TodoHub::CRON_HOOK, 'daily' )
 			->postTypes( Ads::POST_TYPE )
 			->task( new Tasks\CleanupTask() )
 			->deactivationSurvey()

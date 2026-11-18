@@ -56,6 +56,23 @@ ad, by placement and by page, and a CSV export of the daily rows. Each ad in the
 - With Affiliate Link Cloaker 0.4.0+, **Link clicks** shows the redirects the cloaker logged
   for each ad's link (sub-ID `adn-{ID}`). That includes clicks the page itself can't see.
 
+## To-do Hub
+
+With [To-do Hub](https://github.com/bignall/todo-hub) active, Ad Network adds tasks to your
+to-do list and marks them done when they're fixed:
+
+- **Fix ad "title"** for each published ad that won't show (no image, no link, its size turned
+  off, third-party code not allowed) or whose cloaked link was deleted or no longer pays. The
+  reasons are in the task's notes. It's high priority when the offer no longer pays, because the
+  ad keeps using up the slot.
+- **Add ads for N empty ad slots** when a placement that's on has no ad of the size it uses
+  (on computers or phones), so visitors see a blank space.
+
+Ads are checked when saved, when settings change, and once a day, so an offer the affiliate
+network ends is caught too. A task ticked off without fixing the problem comes back at the
+next daily check. It works with To-do Hub on this site or connected to a hub elsewhere. Turn it
+off under **Ads → Settings → To-do list**.
+
 ## Placing ads by hand
 
 ```

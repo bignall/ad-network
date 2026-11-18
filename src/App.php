@@ -29,6 +29,7 @@ final class App {
 		Serving\Frontend::init();
 		Serving\Shortcode::init();
 		Serving\Widget::init();
+		Integrations\TodoHub::init();
 
 		if ( is_admin() ) {
 			Admin\AdEditor::init();

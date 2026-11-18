@@ -42,6 +42,7 @@ final class Settings {
 			'ignore_bots'    => 1,
 			'track_admins'   => 0,
 			'retention_days' => 90,
+			'todo_tasks'     => 1,
 			'remove_data'    => 0,
 		);
 	}
@@ -103,7 +104,7 @@ final class Settings {
 
 		$out['retention_days'] = max( self::MIN_RETENTION_DAYS, min( 3650, (int) ( $input['retention_days'] ?? self::defaults()['retention_days'] ) ) );
 
-		foreach ( array( 'new_tab', 'track', 'ignore_bots', 'track_admins', 'remove_data' ) as $flag ) {
+		foreach ( array( 'new_tab', 'track', 'ignore_bots', 'track_admins', 'todo_tasks', 'remove_data' ) as $flag ) {
 			$out[ $flag ] = empty( $input[ $flag ] ) ? 0 : 1;
 		}
 
