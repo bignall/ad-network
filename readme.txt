@@ -1,10 +1,10 @@
 === Ad Network ===
-Contributors: arbe
+Contributors: bignall
 Tags: ads, ad rotation, banners, affiliate, advertising
 Requires at least: 6.4
 Tested up to: 6.8
 Requires PHP: 8.1
-Stable tag: 0.3.0
+Stable tag: 0.3.1
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -20,6 +20,9 @@ Run your own ad network: image and HTML ads in header, footer, in-content and si
 * Works with Affiliate Link Cloaker: ads use your cloaked links, and clicks are tagged with the ad that sent them.
 
 == Changelog ==
+
+= 0.3.1 =
+* The plugin's author is now RB Creative Solutions.
 
 = 0.3.0 =
 * Works with To-do Hub: adds "Fix ad <title>" for published ads that won't show or whose cloaked link is gone or no longer pays (high priority when the offer no longer pays), and "Add ads for N empty ad slots" when a placement that's on has no ad of its size. Tasks are marked done when fixed. Checked on save, when settings change, and daily. Turn off under Ads → Settings → To-do list.

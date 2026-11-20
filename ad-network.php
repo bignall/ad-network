@@ -2,10 +2,11 @@
 /**
  * Plugin Name:       Ad Network
  * Description:       Run your own ad network: image and HTML ads in header, footer, in-content and sidebar placements, served in random rotation (page-cache safe) with impression, view and click tracking and stats.
- * Version:           0.3.0
+ * Version:           0.3.1
  * Requires at least: 6.4
  * Requires PHP:      8.1
- * Author:            Arbe
+ * Author:            RB Creative Solutions
+ * Author URI:        https://rbcreativesolutions.net
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       ad-network
